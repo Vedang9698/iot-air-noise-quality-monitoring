@@ -28,7 +28,7 @@ The system uses two **ESP32 sensor nodes**, with each node measuring environment
 
 ## 🏗️ System Architecture
 
-The architecture diagram below is taken from **Figure 5.1** in the project report (PDF page 38). It shows the two ESP32 sensor nodes, Raspberry Pi 5 gateway, and Ubidots monitoring platform.
+The architecture diagram below shows the two ESP32 sensor nodes, Raspberry Pi 5 MQTT gateway, and remote monitoring dashboard.
 
 ![Overall IoT system architecture from the project report](assets/system-architecture.png)
 
