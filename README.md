@@ -28,44 +28,10 @@ The system uses two **ESP32 sensor nodes**, with each node measuring environment
 
 ## 🏗️ System Architecture
 
-```text
-                  ┌──────────────────────────┐
-                  │       ESP32 NODE 1       │
-                  │                          │
-                  │  BME680   → Environment  │
-                  │  MQ7      → CO           │
-                  │  INMP441  → Sound        │
-                  └────────────┬─────────────┘
-                               │
-                               │ MQTT
-                               │
-                               ▼
-                       ┌──────────────────┐
-                       │  RASPBERRY PI 5  │
-                       │                  │
-                       │  MQTT Gateway    │
-                       │  Data Forwarder  │
-                       └────────┬─────────┘
-                                │
-                                │ Internet
-                                ▼
-                         ┌───────────────┐
-                         │    UBIDOTS    │
-                         │   Monitoring  │
-                         └───────────────┘
-                                ▲
-                                │
-                                │ MQTT
-                       ┌────────┴─────────┐
-                       │                  │
-                  ┌────┴─────────────┐
-                  │   ESP32 NODE 2   │
-                  │                  │
-                  │ BME680 → Env.    │
-                  │ MQ2    → Gas     │
-                  │ INMP441 → Sound  │
-                  └──────────────────┘
-```
+The architecture diagram below is taken from **Figure 5.1** in the project report (PDF page 38). It shows the two ESP32 sensor nodes, Raspberry Pi 5 gateway, and Ubidots monitoring platform.
+
+![Overall IoT system architecture from the project report](assets/system-architecture.png)
+
 
 ---
 
@@ -99,23 +65,8 @@ The system uses two **ESP32 sensor nodes**, with each node measuring environment
 
 ## 📡 Communication Flow
 
-```text
-Sensors
-   │
-   ▼
-ESP32 Sensor Nodes
-   │
-   │ MQTT
-   ▼
-Raspberry Pi 5
-   │
-   │ Data Forwarding
-   ▼
-Ubidots
-   │
-   ▼
-Remote Monitoring
-```
+The end-to-end data flow is illustrated in the system architecture image above. Each ESP32 publishes telemetry over MQTT; the Raspberry Pi 5 receives the messages and forwards valid data to Ubidots.
+
 
 The Raspberry Pi subscribes to:
 
@@ -129,31 +80,17 @@ This allows the gateway to receive sensor messages from multiple ESP32 nodes usi
 
 ## 📊 Sensor Parameters
 
-### Node 1
+| Parameter | Node 1 field | Node 2 field |
+|---|---|---|
+| Temperature | `temp1` | `temp2` |
+| Humidity | `hum1` | `hum2` |
+| Pressure | `pressure1` | `pressure2` |
+| Gas resistance | `gas1` | `gas2` |
+| Sound level | `dB1` | `dB2` |
+| Altitude | `altitude1` | `altitude2` |
+| Gas sensor estimate | `co1` | `flammableGas2` |
+| VOC estimate | `voc1` | `voc2` |
 
-```text
-Temperature      → temp1
-Humidity         → hum1
-Pressure         → pressure1
-Gas Resistance   → gas1
-Sound Level      → dB1
-Altitude         → altitude1
-CO               → co1
-VOC Estimate     → voc1
-```
-
-### Node 2
-
-```text
-Temperature      → temp2
-Humidity         → hum2
-Pressure         → pressure2
-Gas Resistance   → gas2
-Sound Level      → dB2
-Altitude         → altitude2
-Flammable Gas    → flammableGas2
-VOC Estimate     → voc2
-```
 
 ---
 
@@ -214,82 +151,26 @@ VOC Estimate     → voc2
 
 ## 📁 Repository Structure
 
-```text
-iot-air-noise-quality-monitoring/
-│
-├── FinalcodeNode1.ino     # ESP32 Node 1 firmware
-├── FinalcodeNode2.ino     # ESP32 Node 2 firmware
-├── Script.py              # Raspberry Pi MQTT gateway
-└── README.md              # Project documentation
-```
+- `FinalcodeNode1.ino` — ESP32 Node 1 firmware
+- `FinalcodeNode2.ino` — ESP32 Node 2 firmware
+- `Script.py` — Raspberry Pi MQTT gateway and forwarding script
+- `README.md` — Project documentation
+- `assets/` — Diagrams extracted from the project report
+
 
 ---
 
 ## ⚙️ Node 1 Connections
 
-### BME680
+The Node 1 circuit diagram is taken from **Figure 5.9** in the attached project report.
 
-```text
-BME680       ESP32
-------------------
-SDA    →     GPIO 21
-SCL    →     GPIO 22
-SDO    →     GND
-VDD    →     3.3V
-CS     →     Not connected
-```
-
-### INMP441
-
-```text
-INMP441      ESP32
-------------------
-SD       →   GPIO 33
-LR       →   3.3V
-WS       →   GPIO 26
-SCK      →   GPIO 25
-VDD      →   3.3V
-GND      →   GND
-```
-
-### MQ7
-
-```text
-MQ7 AO    →   GPIO 35
-```
-
----
+![Node 1 circuit diagram](assets/node-1-circuit.png)
 
 ## ⚙️ Node 2 Connections
 
-### BME680
+The Node 2 circuit diagram is taken from **Figure 5.10** in the attached project report.
 
-```text
-BME680       ESP32
-------------------
-SDA    →     GPIO 21
-SCL    →     GPIO 22
-SDO    →     GND
-CS     →     3.3V
-```
-
-### INMP441
-
-```text
-INMP441      ESP32
-------------------
-SCK      →   GPIO 33
-SD       →   GPIO 32
-WS       →   GPIO 25
-LR       →   GND
-VCC      →   3.3V
-```
-
-### MQ2
-
-```text
-MQ2 A0    →   GPIO 35
-```
+![Node 2 circuit diagram](assets/node-2-circuit.png)
 
 ---
 
@@ -380,21 +261,6 @@ The sound sensor is calibrated against a reference sound-level measurement.
 ---
 
 ## 🔮 Future Scope
-
-```text
-                    CURRENT SYSTEM
-                         │
-          ┌──────────────┼──────────────┐
-          ▼              ▼              ▼
-      More Nodes     Better Sensors   Analytics
-          │              │              │
-          ▼              ▼              ▼
-      Larger Area    Better Accuracy   Prediction
-                         │
-                         ▼
-                  Intelligent IoT
-                    Monitoring
-```
 
 Potential improvements include:
 
